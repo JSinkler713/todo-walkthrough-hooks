@@ -11,7 +11,7 @@ Let's create a file `src/components/CreateTodoForm.js` and fill it out with the 
 import React, { Component } from 'react';
 
 class CreateTodoForm extends Component {
-  this.state = {
+  state = {
     todo: '',
   };
   
