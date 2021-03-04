@@ -19,7 +19,15 @@ class TodosContainer extends Component {
     this.fetchData()
   }
 
-  fetchData = () => {
+  fetchData = async() => {
+    
+    const res = await TodoModel.all()
+    this.setState({ 
+      todos: res.data.todos,
+      todo: '',
+      todoCount: res.data.todos.filter(todo=> todo.completed === false).length
+    })
+    /*
     TodoModel.all().then( (res) => {
       this.setState ({
         todos: res.data.todos,
@@ -27,43 +35,64 @@ class TodosContainer extends Component {
         todoCount:res.data.todos.filter(todo => todo.completed === false).length
       })
     })
+    */
   }
 
-  createTodo = (todo) => {
+  createTodo = async(todo) => {
     let newTodo = {
         body: todo,
         completed: false
     }
+    console.log('in create function')
+    const anotherTodo = await TodoModel.create(newTodo)
+    let todos = this.state.todos
+    let newTodos = [...todos, anotherTodo.data]
+    this.setState({ todos: newTodos })
+    /*
     TodoModel.create(newTodo).then((res) => {
         let todos = this.state.todos
         let newTodos = todos.push(res.data)
         this.setState({newTodos})
 
     })
+    */
   }
 
-  updateTodo = (todoBody, todoId) => {
+  updateTodo = async (todoBody, todoId) => {
     function isUpdatedTodo(todo) {
         return todo._id === todoId;
     }
+    const result = await TodoModel.update(todoId, todoBody)
+    let todos = this.state.todos
+    todos.find(isUpdatedTodo).body = todoBody.body
+    this.setState({ todos: todos })
+    /*
     TodoModel.update(todoId, todoBody).then((res) => {
         let todos = this.state.todos
         todos.find(isUpdatedTodo).body = todoBody.body
         this.setState({todos: todos})
     })
+    */
   }
 
 
-  deleteTodo = (todo) => {
+  deleteTodo = async (todo) => {
+    let res = await TodoModel.delete(todo)
+    let todos = this.state.todos.filter(function(todo) {
+      return todo._id !== res.data._id
+    });
+    this.setState({todos})
+    /*
     TodoModel.delete(todo).then((res) => {
         let todos = this.state.todos.filter(function(todo) {
           return todo._id !== res.data._id
         });
         this.setState({todos})
     })
+    */
   }
 
-  markComplete = (todoId, complete) => {
+  markComplete = async(todoId, complete) => {
     console.log(complete)
     function isUpdatedTodo(todo) {
       return todo._id === todoId;
@@ -73,6 +102,20 @@ class TodosContainer extends Component {
     this.setState({
       todos: todos
     })
+    const res = await TodoModel.update( todoId, complete )
+    if (complete.completed) {
+      this.setState({
+        todoCount: this.state.todoCount - 1
+      })
+    }
+    else {
+      this.setState({
+        todoCount: this.state.todoCount + 1
+      })
+    }
+    return res.data.completed
+
+    /*
     TodoModel.update( todoId, complete ).then((res) => {
       if(complete.completed){
         this.setState({
@@ -85,6 +128,7 @@ class TodosContainer extends Component {
       }
       return res.data.completed
     })
+    */
   }
 
   clearCompleted = () => {
