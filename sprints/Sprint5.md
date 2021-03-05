@@ -5,7 +5,7 @@ Deleting will work similarly with regard to passing state. Let's update the `Tod
 ```js
 const Todo = (props) => {
 
-  const deleteClickedTodo = () => props.onDeleteTodo(props.todo)
+  const deleteClickedTodo = () => props.deleteTodo(props.todo)
 
   return (
     <li data-todos-index={props.todo._id}>
