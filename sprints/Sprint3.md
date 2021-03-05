@@ -124,33 +124,31 @@ In this component, we have a property called todos. What type of data will this 
 Let's shove the remaining code we need in and then let's talk about it. In `src/containers/TodosContainer.js`:
 
 ```js
-import React, { Component } from 'react';
-import TodoModel from '../models/Todo';
-import Todos from '../components/Todos';
+import { useState, useEffect } from 'react'
+import TodoModel from '../models/Todo'
+import Todos from '../components/Todos'
 
 function TodosContainer() {
   const [todos, setTodos] = useState([])
   const [todoCount, setTodoCount] = useState(0)
-  
-  useEffect(()=> {
+
+  useEffect(() => {
     fetchData()
-  }, []
-  
-  const fetchData = async() => {
-    // remember this was a promise
+  }, [])
+
+  const fetchData = async () => {
     const res = await TodoModel.all()
     setTodos(res.data)
-    setTodoCount( res.data.filter(todo=> todo.completed === false).length)
+    setTodoCount(res.data.filter((todo) => todo.completed === false).length)
   }
   return (
-    <div className="todosComponent">
-      <Todos
-        todos={todos} />
+    <div className='todosComponent'>
+      <Todos todos={todos} />
     </div>
-  );
-};
+  )
+}
 
-export default TodosContainer;
+export default TodosContainer
 ```
 
 If we take a look at our browser now... BAM todos! What just happened....
