@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 function TodoForm(props) {
   const [todo, setTodo] = useState()
+
   function onChange(event) {
     setTodo(event.target.value)
   }
