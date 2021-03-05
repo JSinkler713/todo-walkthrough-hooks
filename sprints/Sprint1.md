@@ -10,7 +10,6 @@ Routes in React are just React components as well! Since we've installed the `re
 In `src/index.js`:
 
 ```js
-import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -31,7 +30,6 @@ reportWebVitals();
 Now, in `src/App.js`, let's add 2 routes for '/' and '/todos': 
 
 ```js
-import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import Home from './components/Home';
 import TodosContainer from './containers/TodosContainer';
