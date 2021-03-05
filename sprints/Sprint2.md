@@ -5,7 +5,7 @@ Writing a container is going to feel very similar to writing just another compon
 Let's revise our `src/containers/TodosContainer.js` and replace the dummy text we had before with the following:
 
 ```js
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 function TodosContainer() 
   return (
