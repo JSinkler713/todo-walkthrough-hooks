@@ -8,69 +8,57 @@ Lets write this feature to shed some more light on it.
 Let's create a file `src/components/CreateTodoForm.js` and fill it out with the following:
 
 ```js
-import React, { Component } from 'react';
+import React, { useState } from 'react'
 
-class CreateTodoForm extends Component {
-  state = {
-    todo: '',
-  };
+const CreateTodoForm  = (props) => {
+  const [todo, setTodo] = useState('')
   
-  onInputChange = (event) => {
-    this.setState({
-      todo: event.target.value,
-    });
-  };
-  
-  onFormSubmit = (event) => {
-    event.preventDefault();
-    let todo = this.state.todo;
-    this.props.createTodo(todo);
-    this.setState({
-      todo: '',
-    });
-  };
-  
-  render() {
-    return (
-      <div>
-        <form onSubmit={this.onFormSubmit} id="taskForm">
-          <input  
-            onChange={this.onInputChange} 
-            type="text" id="newItemDescription" 
-            placeholder="What do you need to do?" 
-            value={this.state.todo}
-          />
-          <button type="submit" id="addTask" className="btn">Add Todo</button>
-        </form>
-      </div>
-    );
-  };
-};
+  const onInputChange = (event)=> {
+    setTodo( event.target.value )
+  }
 
-export default CreateTodoForm;
-```
-
-Whoa.. pauuuuseee. Let's take a look. First let's look at what we're rendering:
-
-```js
-render() {
+  const onFormSubmit = (event)=> {
+    event.preventDefault()
+    props.createTodo(todo)
+    setTodo('')
+  }
   return (
-    <div>
-      <form onSubmit={this.onFormSubmit} id="taskForm">
+    <div >
+      <form onSubmit={ onFormSubmit } id="taskForm">
         <input  
-          onChange={this.onInputChange} 
+          onChange={ onInputChange } 
           type="text" id="newItemDescription" 
           placeholder="What do you need to do?" 
-          value={this.state.todo}
+          value={todo}
+        />
+        <button type="submit" id="addTask" className="btn">Add Todo</button>
+      </form>
+    </div>
+  )
+}
+
+export default CreateTodoForm
+```
+
+Whoa.. pauuuuseee. Let's take a look. First let's look at what we're returning:
+
+```js
+  return (
+    <div>
+      <form onSubmit={ onFormSubmit } id="taskForm">
+        <input  
+          onChange={ onInputChange } 
+          type="text" id="newItemDescription" 
+          placeholder="What do you need to do?" 
+          value={todo}
         />
         <button type="submit" id="addTask" className="btn">Add Todo</button>
       </form>
     </div>
   );
-};
 ```
 
-We define the initial state of the form in the constructor.
+We define the initial state of the form in the `useState('')  `.
 
 Looks like a form. When it gets submitted we run a function (we're using es6 arrow function here to pass an anonymous function with an event argument). That function is the `.onFormSubmit` function defined in this component.
 
@@ -82,31 +70,26 @@ Similarly when the `input` is changed we run `.onInputChange`.
 Let's take a look at the `onInputChange` function first:
 
 ```js
-onInputChange = (event) => {
-  this.setState({
-    todo: event.target.value,
-  });
-};
+const onInputChange = (event)=> {
+  setTodo( event.target.value )
+}
 ```
 
-Basically whenever this input changes, we're going to set the state of this component to have a property of `todo` and it's value is whatever the input field's value is.
+Basically whenever this input changes, we're going to set the state of this component to have a property of `todo` and it's value is whatever the input field's value is. This is a **controlled** input.
 
 `onFormSubmit`:
 
 ```js
-onFormSubmit = (event) => {
-  event.preventDefault();
-  let todo = this.state.todo;
-  this.props.createTodo(todo);
-  this.setState({
-    todo: '',
-  });
-};
+const onFormSubmit = (event)=> {
+  event.preventDefault()
+  props.createTodo(todo)
+  setTodo('')
+}
 ```
 
-First off, prevent the default action as form submission will cause a request to fire. Then instantiate a variable todo from the state. Lastly we also set the todo property of the state as an empty string. We skipped one line though, `this.props.createTodo(todo)` What does that tell us about where `createTodo` comes from?
+First off, prevent the default action as form submission will cause a request to fire. Then instantiate a variable todo from the state. Lastly we also set the todo property of the state as an empty string. We skipped one line though, `props.createTodo(todo)` What does that tell us about where `createTodo` comes from?
 
-It needs to be supplied from its parent component. Let's update the `src/containers/TodosContainer.js` so that we can successfully create todos:
+It needs to be supplied from its parent component. In other words find where it is returned as `<CreateTodoForm >` and look at what props are passed. Let's update the `src/containers/TodosContainer.js` so that we can successfully create todos:
 
 In `src/containers/TodosContainer.js`:  
 
@@ -116,33 +99,31 @@ import CreateTodoForm from '../components/CreateTodoForm';
 
 ...
 
-createTodo = (todo) => {
+  const createTodo = async(todo) => {
     let newTodo = {
         body: todo,
-        completed: false,
-    };
-    
-    TodoModel.create(newTodo).then((res) => {
-        let todos = this.state.todos;
-        todos.push(res.data);
-        this.setState({ todos: todos });
-    });
-};
+        completed: false
+    }
+    console.log('in create function')
+    // dealing with our api - going to take time
+    const anotherTodo = await TodoModel.create(newTodo)
+    let newTodos = [...todos, anotherTodo.data]
+    setTodos(newTodos)
+    setTodoCount( todoCount + 1)
+  }
 
-render() {
   return (
     <div className="todosComponent">
       <CreateTodoForm
-        createTodo={this.createTodo} />
-
+        createTodo={ createTodo } />
       <Todos
         todos={this.state.todos} />
     </div>
-  );
-};
+  )
+}
 ```
 
-We see that we pass the `createTodo` function of THIS container component TO the `CreateTodoForm` component. Since we are using arrow functions instead of traditional function definitions we are not bound to a `this` inside our methods.  The `this` inside the methods actually refers to the context of the component. 
+We see that we pass the `createTodo` function of THIS container component TO the `CreateTodoForm` component. We then have access to it down in the child component.
 
 In the actual `createTodo` function. We can see that we construct everything we need about a todo in an object and store it in a variable. We then pass that object to a `.create` method on our `TodoModel` that ... hasn't been defined yet. Let's define it now. In `src/models/Todo.js`:
 
@@ -157,36 +138,28 @@ Using axios, we create the `todo`. In the promise, we fetch all the `todos` and 
 
 ## Backtrack - How did we pass state from child to parent?
 
-Remember that in the submit event of the form, we used a function `this.props.createTodo()`:
+Remember that in the submit event of the form, we used a function `props.createTodo()`:
 
 In `src/components/CreateTodoForm`:
 
 ```js
-onFormSubmit = (event) => {
-  event.preventDefault();
-  let todo = this.state.todo;
-  this.props.createTodo(todo);
-  this.setState({
-    todo: '',
-  });
-};
+const onFormSubmit = (event)=> {
+  event.preventDefault()
+  props.createTodo(todo)
+  setTodo('')
+}
 ```
 
 We pass `createTodo` from the container as `props`. In `src/containers/TodosContainer.js`:
 
 ```js
-constructor() {
-  super(); 
-};
-
-render() {
   return (
     <div className="todosContainer">
       <CreateTodoForm
-        createTodo={ this.createTodo } />
+        createTodo={ createTodo } />
 
       <Todos
-        todos={this.state.todos} />
+        todos={todos} />
     </div>
   );
 };

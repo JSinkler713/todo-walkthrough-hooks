@@ -50,7 +50,7 @@ function App() {
 export default App;
 ```
 
-We use the `Switch` component from `react-router-dom` to tell our app to switch between different routes, depending on the URL. Then, we use the `Route` component, also given to us by `react-router-dom` to create a route for the root path(`'/'`). We also establish that the component that should be rendered here is a `Home` component. There is a second route for the path `/todos`, which should route to a `TodosContainer` component.
+We use the `Switch` component from `react-router-dom` to tell our app to switch between different routes, depending on the URL. Think of it as a container for our different Routes. If we have nested routes it can help make sure they run as we think they should. Then, we use the `Route` component, also given to us by `react-router-dom` to create a route for the root path(`'/'`). We also establish that the component that should be rendered here is a `Home` component. There is a second route for the path `/todos`, which should route to a `TodosContainer` component.
 
 This will immediately ERROR our code out, because we don't actually have those files with those components defined. Take some time now to create a `Home` component with some dummy text inside (e.g. "I am the Home page"). Do the same for the `TodosContainer` component (e.g. "I am the TodosContainer page").
 
@@ -85,22 +85,19 @@ In the `containers/TodosContainer` React component add the following code:
   
 ```js
 // containers/TodosContainer.js
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 
-class TodosContainer extends Component {
-  render() {
-    return (
-      <h2>
-        I am the TodosContainer page
-      </h2>
-    );
-  };
+function TodosContainer() 
+  return (
+    <h2>
+      I am the TodosContainer page
+    </h2>
+  );
 };
 
 export default TodosContainer;
 ```
 
-> Something that's weird is that we imported `React` from `'react'` but then we imported `{Route}` from `'react-router-dom'`. What's with the curly braces? In the latter case we're actually only importing a specific module of the `react-router-dom` and name spacing it within `Route` If we had omitted the curly braces, it would have grabbed all of `react-router-dom`'s functionality. Check out the [react-router-dom source code](https://github.com/ReactTraining/react-router/tree/master/packages/react-router/docs/api) and we can clearly see the Route is a module within react-router-dom
 
 
 Great, we should now be able to see our `Home` component's "I am the Home page" show up on `localhost:3000`! Going to `localhost:3000/todos` should show "I am the TodosContainer page".
@@ -190,7 +187,7 @@ export default (
 );
 ```
 
-Then, edit your `App.js` file to no longer have hard-coded routes, and to reference the routes in your `config/routes.js` file instead:
+Then, edit your `App.js` file to no longer have hard-coded routes, and to reference the routes in your `config/routes.js` file instead. Much cleaner!!
 
 ```js
 import React from 'react';

@@ -3,24 +3,20 @@
 Deleting will work similarly with regard to passing state. Let's update the `Todo` component to contain a UI with which to delete a todo. In `src/components/Todo.js`:
 
 ```js
-class Todo extends Component {
+const Todo = (props) => {
 
-  deleteClickedTodo = () => {
-    this.props.deleteTodo(this.props.todo);
-  };
-  
-  render() {
-    return (
-      <li data-todos-index={this.props.todo._id}>
-        <span className="todo-item">{this.props.todo.body}</span>
-        <span
-          className='remove'
-          onClick={this.deleteClickedTodo}>
-          Remove
-        </span>
-      </li> 
-    );
-  };
+  const deleteClickedTodo = () => props.onDeleteTodo(props.todo)
+
+  return (
+    <li data-todos-index={props.todo._id}>
+      <span className="todo-item">{props.todo.body}</span>
+      <span
+        className='remove'
+        onClick={deleteClickedTodo}>
+        Remove
+      </span>
+    </li> 
+  );
 };
 ```
 
@@ -40,32 +36,25 @@ let todos = props.todos.map((todo) => {
 Looks like it's not defined here either but passed yet again from a parent container. Finally in the `src/containers/TodosContainer.js`:
 
 ```js
-constructor() {
-  super();
-  this.state = {
-    todos: [],
-  };
-};
 
 // After the todo delete response is sent back from the server, we find the corresponding entry for the todo in our todos state array and remove it.
-deleteTodo = (todo) => {
-    TodoModel.delete(todo).then((res) => {
-        let todos = this.state.todos.filter((todo) => {
-          return todo._id !== res.data._id;
-        });
-        this.setState({todos});
+  const deleteTodo = async (todo) => {
+    let res = await TodoModel.delete(todo)
+    let tempTodos = todos.filter(function(todo) {
+      return todo._id !== res.data._id
     });
-};
+    setTodos(tempTodos)
+  }
 
-render() {
+
   return (
     <div className="todosComponent">
       <CreateTodoForm
-        createTodo={this.createTodo}
+        createTodo={createTodo}
         />
       <Todos
-        todos={this.state.todos}
-        deleteTodo={this.deleteTodo}
+        todos={todos}
+        deleteTodo={deleteTodo}
         />
     </div>
   );

@@ -5,16 +5,14 @@ Writing a container is going to feel very similar to writing just another compon
 Let's revise our `src/containers/TodosContainer.js` and replace the dummy text we had before with the following:
 
 ```js
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react'
 
-class TodosContainer extends Component {
-  render() {
-    return (
-      <div className='todosContainer'>
-        <h2>This is the todos container</h2>
-      </div>
-    );
-  };
+function TodosContainer() 
+  return (
+    <div className='todosContainer'>
+      <h2>This is the todos container</h2>
+    </div>
+  );
 };
 
 export default TodosContainer;
@@ -22,7 +20,7 @@ export default TodosContainer;
 
 ### PAUSE!
 
-Everything up to this point is most of what you need to know about using react for a simple website NOT using a back-end.  From here on out we will be writing code to communicate with our back-end api `super-crud`. 
+Everything up to this point is most of what you need to know about using react for a simple website NOT using a back-end.  From here on out we will be writing code to communicate with our back-end api `sei-111-todo-backend`. 
 
 We can still access our originating `index.html` page to include cdn links.  Lets add two fonts from Google's Fonts API. Add this above the other `<link>` tags in the `<head>` tag
 
