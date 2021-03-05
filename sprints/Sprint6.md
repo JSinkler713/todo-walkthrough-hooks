@@ -7,40 +7,32 @@ To update a `todo` in our database we will need to initiate a pre-filled form th
 In `containers/TodosContainer.js`:
 
 ```js
-  constructor() {
-      super();
-      this.state = {
-          todos: [],
-      };
-  };
-
   /* createTodo = ...  */
 
   /* deleteTodo = ...  */
 
-  updateTodo = todo => {
+  const updateTodo = async(todo) => {
+    //little find helper
     const isUpdatedTodo = t => {
+        // return the first todo with the right id
         return t._id === todo._id;
     };
 
-    TodoModel.update(todo)
-        .then((res) => {
-          let todos = this.state.todos;
-          todos.find(isUpdatedTodo).body = todo.body;
-          this.setState({ todos: todos });
-        });
+    let result = await TodoModel.update(todo)
+    let todosNow = [...todos]
+    todosNow.find(isUpdatedTodo).body = todo.body;
+    setTodos( todosNow )
   };
 
-  render() {
     return (
       <div className="todosComponent">
         <CreateTodoForm
-          createTodo={ this.createTodo }
+          createTodo={ createTodo }
         />
         <Todos
-          todos={ this.state.todos }
-          updateTodo={ this.updateTodo } 
-          deleteTodo={ this.deleteTodo }
+          todos={ todos }
+          updateTodo={ updateTodo } 
+          deleteTodo={ deleteTodo }
           />
       </div>
     );
@@ -68,20 +60,19 @@ In the `components/Todos.js`, add `updateTodo` to `<Todo>` props:
 In `components/Todo.js` We need to add some state and add the method  `toggleBodyForm`:
 
 ```js
-  constructor(props) {
-    super(props);
-    this.state = {
-      formStyle: {
-        display: 'none',
-      },
-    };
-  };
+  const [complete, setComplete] = useState(Boolean())
+  const [formStyle, setFormStyle ] = useState({ display: 'none'})
+  const [bodyStyle, setBodyStyle ] = useState({})
 
-  toggleBodyForm = () => {
-    this.state.formStyle.display === 'block'
-    ? this.setState({ formStyle: {display: 'none'} })
-    : this.setState({ formStyle: {display:'block'} });
-  };
+  const toggleBodyForm = () => {
+    if (formStyle.display === 'block') {
+      setFormStyle({ display: 'none'})
+      setBodyStyle({ display: 'block'})
+    } else {
+      setFormStyle({display: 'block'})
+      setBodyStyle({display: 'none'})
+    }
+  }
 ```
 
 This will hide the `todo` body and reveal the `todoForm` components.
@@ -89,89 +80,85 @@ This will hide the `todo` body and reveal the `todoForm` components.
 Lets update our `Todo` render to have the `TodoForm` included. We'll also add an Edit link. When the user clicks on the edit link, the form will appear prepopulated with the text of the todo for easy altering. Neat!
 
 ```js
-  render() {
-    return (
-      <li data-todos-index={this.props.todo._id}>
-        <div>
-          <span className="todo-item">
-            {this.props.todo.body}</span>
-          <span
-            className='edit' 
-            onClick={this.toggleBodyForm}>
-            Edit
-          </span>
-          <span
-            className='remove' 
-            onClick={this.deleteClickedTodo}>
-            Remove
-          </span>
-        </div>
-        <TodoForm 
-          todo={this.props.todo}
-          style={this.state.formStyle}
-          autoFocus={true}
-          buttonName="Update Todo!"
-          updateTodo={this.props.updateTodo}
-          toggleBodyForm={this.toggleBodyForm} />
-      </li> 
-    );
-  };
+return(
+    <li 
+      data-todos-index={props.todo.id}
+      >
+      <div style={bodyStyle}>
+        <input 
+          type="checkbox" 
+          checked={Boolean(complete)} 
+          onChange={handleCheck} />
+        <span 
+          className= { complete ? "completed item" : "item" }>
+          {props.todo.body}</span>
+        <a
+          className='edit' 
+          onClick={toggleBodyForm}>
+          edit
+        </a>
+        <a
+          className='remove'
+          onClick={deleteClickedTodo}>
+          Remove
+        </a>
+      </div>
+      <TodoForm
+        todo={props.todo}
+        style={formStyle}
+        autoFocus={true}
+        buttonName="Save"
+        onUpdateTodo={props.onUpdateTodo} 
+        toggleBodyForm={toggleBodyForm}/>
+    </li> 
+  )
+}
 ```
 
 You will then have to both write the `TodoForm` component and then import it into `components/Todo.js`:
 
 ```js
 //TodoForm.js
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react'
 
-class TodoForm extends Component {
-  constructor() {
-    super();
-    this.state = {
-      todo: '',
-    };
-  };
+function TodoForm(props) {
+  const [todo, setTodo] = useState()
 
-  onChange = (event) => {
-    this.setState({
-      todo: event.target.value,
-    });
-  };
+  function onChange(event) {
+    setTodo(event.target.value)
+  }
 
-  onSubmit = (event) => {
-    event.preventDefault();
-    const todo = this.props.todo;
-    todo.body = this.state.todo;
-    this.props.updateTodo(todo);
-    this.setState({ todo: '' });
-    this.props.toggleBodyForm();
-  };
+  function onSubmit(event){
+    event.preventDefault()
+    props.toggleBodyForm()
+    console.log({body: todo})
+    props.onUpdateTodo({body: todo}, props.todo._id)
+  }
 
-  render() {
-    return (
-      <div style={this.props.style} className='todoForm'>
-        <form onSubmit={ this.onSubmit }>
-          <input
-            autoFocus={this.props.autoFocus}
-            onChange={ this.onChange }
-            placeholder='Write a todo here ...'
-            type='text'
-            value={this.state.todo} />
-          <button type='submit'>Save</button>
-        </form>
-      </div>
-    );
-  };
-};
-
-export default TodoForm;
+  useEffect(()=> {
+    setTodo(props.todo.body)
+  }, [])
+  return (
+    <div style={props.style} className='todoForm'>
+      <form className="editor" onSubmit={ onSubmit }>
+        <input
+          autoFocus={props.autoFocus}
+          onChange={ onChange } 
+          type='text'
+          value={(todo) || ''} />
+        <button type='submit' className="btn">{props.buttonName}</button>
+      </form>
+    </div>
+  )
+}
+export default TodoForm
 
 ```
 
 ```js
 //Todo.js
-import React, { Component } from 'react';
-import TodoForm from './TodoForm';
+import React, { useState, useEffect } from 'react'
+import TodoForm from './TodoForm'
 
 //...
 ```
@@ -192,3 +179,9 @@ Then we make our way down from `TodosContainer` to `Todos` to `Todo`, with `stat
 ## Conclusion
 
 We've learned how to do full CRUD for a basic todo app here. We've seen in particular how props can be trickled down through parent and child components to make a very modular app. We've also been introduced to the magic of axios for network calls from our frontend.
+
+Some Extensions to try.
+Create a `<TodoDashboard todoCount={todoCount} />` That tracks how many todos you have left that are still uncompleted.
+
+What about building out the API from scratch?
+It's a lot, but everything beyond this is mostly making it look good. Happy Coding

@@ -1,17 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-
-
-
-class Home extends Component{
-  render() {
-    return (
-      <div>
-        Welcome to the TODO React Walkthrough! 
-      </div>
-    )
-  }
-
+function Home() {
+  return (
+    <div>
+      Welcome to the TODO React Walkthrough! 
+    </div>
+  )
 }
 
 export default Home;

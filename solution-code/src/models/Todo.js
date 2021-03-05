@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const url = `https://super-crud.herokuapp.com/todos`
+const url = `https://sei-111-todo-backend.herokuapp.com/todos`
 
 class TodoModel {
   static all = () =>{

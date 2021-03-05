@@ -1,96 +1,80 @@
-import React, {Component} from 'react'
+import React, { useState, useEffect } from 'react'
 import TodoModel from '../models/Todo'
 import Todos from '../components/Todos'
 import TodoDashboard from '../components/TodoDashboard'
 import CreateTodoForm from '../components/CreateTodoForm'
 
-class TodosContainer extends Component {
-  constructor(){
-    super()
-    this.state = {
-      todos: [],
-      editingTodoId: null,
-      editing: false,
-      todoCount: 0
-    }
-  }
+
+function TodosContainer() {
+  const [todos, setTodos] = useState([])
+  const [todoCount, setTodoCount] = useState(0)
   
-  componentDidMount(){
-    this.fetchData()
+  useEffect(()=> {
+    fetchData()
+  }, [])
+
+  const fetchData = async() => {
+    const res = await TodoModel.all()
+    setTodos(res.data)
+    setTodoCount( res.data.filter(todo=> todo.completed === false).length)
   }
 
-  fetchData = () => {
-    TodoModel.all().then( (res) => {
-      this.setState ({
-        todos: res.data.todos,
-        todo: '',
-        todoCount:res.data.todos.filter(todo => todo.completed === false).length
-      })
-    })
-  }
-
-  createTodo = (todo) => {
+  const createTodo = async(todo) => {
     let newTodo = {
         body: todo,
         completed: false
     }
-    TodoModel.create(newTodo).then((res) => {
-        let todos = this.state.todos
-        let newTodos = todos.push(res.data)
-        this.setState({newTodos})
-
-    })
+    console.log('in create function')
+    const anotherTodo = await TodoModel.create(newTodo)
+    let newTodos = [...todos, anotherTodo.data]
+    setTodos(newTodos)
+    setTodoCount( todoCount + 1)
   }
 
-  updateTodo = (todoBody, todoId) => {
+  const updateTodo = async (todoBody, todoId) => {
     function isUpdatedTodo(todo) {
         return todo._id === todoId;
     }
-    TodoModel.update(todoId, todoBody).then((res) => {
-        let todos = this.state.todos
-        todos.find(isUpdatedTodo).body = todoBody.body
-        this.setState({todos: todos})
-    })
+    const result = await TodoModel.update(todoId, todoBody)
+    let todosCurrent = [...todos]
+    todosCurrent.find(isUpdatedTodo).body = todoBody.body
+    setTodos(todosCurrent)
   }
 
 
-  deleteTodo = (todo) => {
-    TodoModel.delete(todo).then((res) => {
-        let todos = this.state.todos.filter(function(todo) {
-          return todo._id !== res.data._id
-        });
-        this.setState({todos})
-    })
+  const deleteTodo = async (todo) => {
+    if (!todo.completed) {
+      setTodoCount( todoCount - 1)
+    }
+    let res = await TodoModel.delete(todo)
+    let tempTodos = todos.filter(function(todo) {
+      return todo._id !== res.data._id
+    });
+    setTodos(tempTodos)
   }
 
-  markComplete = (todoId, complete) => {
+  const markComplete = async(todoId, complete) => {
     console.log(complete)
     function isUpdatedTodo(todo) {
       return todo._id === todoId;
     } 
-    let todos = this.state.todos;
-    todos.find(isUpdatedTodo).complete = complete
-    this.setState({
-      todos: todos
-    })
-    TodoModel.update( todoId, complete ).then((res) => {
-      if(complete.completed){
-        this.setState({
-          todoCount: this.state.todoCount - 1
-        })
-      } else {
-        this.setState({
-          todoCount: this.state.todoCount + 1
-        })
-      }
-      return res.data.completed
-    })
+    let currentTodos = [...todos];
+    currentTodos.find(isUpdatedTodo).complete = complete
+    setTodos( currentTodos )
+    const res = await TodoModel.update( todoId, complete )
+    if (complete.completed) {
+      setTodoCount( todoCount - 1)
+    }
+    else {
+      setTodoCount( todoCount + 1 )
+    }
+    return res.data.completed
   }
 
-  clearCompleted = () => {
+  const clearCompleted = () => {
     console.log("CLEAR!")
-    
-    let filteredTodos = this.state.todos
+    // let filteredTodos = this.state.todos
+    const filteredTodos = [...todos]
       .filter( todo => {
         console.log("in filter")
         if(todo.completed === true ){
@@ -98,32 +82,26 @@ class TodosContainer extends Component {
           TodoModel.delete(todo)
         }
           return true
-        
       })
-      this.setState({
-        todos: filteredTodos
-      })
-
+      setTodos(filteredTodos)
   }
   
-  render(){
-    return (
-      <div className='todosComponent'>
-        <CreateTodoForm
-          createTodo={ this.createTodo }
-          />
-        <Todos
-          todos={this.state.todos}
-          onDeleteTodo={this.deleteTodo} 
-          onUpdateTodo={this.updateTodo} 
-          markComplete={this.markComplete}
-          />
-        <TodoDashboard 
-          todoCount={this.state.todoCount} />
-
-      </div>
-    )
-  }
+  return (
+    <div className='todosComponent'>
+      <CreateTodoForm
+        createTodo={ createTodo }
+        />
+      <Todos
+        todos={todos.length ? todos : []}
+        onDeleteTodo={deleteTodo} 
+        onUpdateTodo={updateTodo} 
+        markComplete={markComplete}
+        />
+      <TodoDashboard 
+        todoCount={todoCount} />
+    </div>
+  )
 }
 
 export default TodosContainer
+

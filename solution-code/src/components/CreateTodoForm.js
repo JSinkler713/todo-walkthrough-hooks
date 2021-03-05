@@ -1,46 +1,30 @@
-import React, {Component} from 'react'
+import React, { useState } from 'react'
 
-class CreateTodoForm extends Component {
-  constructor(){
-    super()
-    //sets the initial state via the constructor! that's the constructor's job :)
-    this.state = {
-      todo: ''
-    }
-    this.onInputChange = this.onInputChange.bind(this);
-    this.onFormSubmit = this.onFormSubmit.bind(this);
-  }
+const CreateTodoForm  = (props) => {
+  const [todo, setTodo] = useState('')
   
-  onInputChange(event){
-    this.setState({
-      todo: event.target.value
-    })
+  const onInputChange = (event)=> {
+    setTodo( event.target.value )
   }
 
-  onFormSubmit(event){
+  const onFormSubmit = (event)=> {
     event.preventDefault()
-    let todo = this.state.todo
-    this.props.createTodo(todo)
-    this.setState({
-      todo: ""
-    })
+    props.createTodo(todo)
+    setTodo('')
   }
-
-  render(){
-    return (
-      <div >
-        <form onSubmit={ this.onFormSubmit } id="taskForm">
-          <input  
-            onChange={ this.onInputChange } 
-            type="text" id="newItemDescription" 
-            placeholder="What do you need to do?" 
-            value={this.state.todo}
-          />
-          <button type="submit" id="addTask" className="btn">Add Todo</button>
-        </form>
-      </div>
-    )
-  }
+  return (
+    <div >
+      <form onSubmit={ onFormSubmit } id="taskForm">
+        <input  
+          onChange={ onInputChange } 
+          type="text" id="newItemDescription" 
+          placeholder="What do you need to do?" 
+          value={todo}
+        />
+        <button type="submit" id="addTask" className="btn">Add Todo</button>
+      </form>
+    </div>
+  )
 }
 
 export default CreateTodoForm
