@@ -7,8 +7,6 @@ import CreateTodoForm from '../components/CreateTodoForm'
 
 function TodosContainer() {
   const [todos, setTodos] = useState([])
-  const [editingTodoId, setEditingTodo] = useState(null)
-  const [editing, setEditing] = useState(false)
   const [todoCount, setTodoCount] = useState(0)
   
   useEffect(()=> {
@@ -17,9 +15,9 @@ function TodosContainer() {
 
   const fetchData = async() => {
     const res = await TodoModel.all()
-    setTodos(res.data.todos)
-    setTodos(res.data.todos)
-    setTodoCount( res.data.todos.filter(todo=> todo.completed === false).length)
+    setTodos(res.data)
+    setTodos(res.data)
+    setTodoCount( res.data.filter(todo=> todo.completed === false).length)
   }
 
   const createTodo = async(todo) => {
@@ -76,7 +74,8 @@ function TodosContainer() {
 
   const clearCompleted = () => {
     console.log("CLEAR!")
-    let filteredTodos = this.state.todos
+    // let filteredTodos = this.state.todos
+    const filteredTodos = [...todos]
       .filter( todo => {
         console.log("in filter")
         if(todo.completed === true ){
@@ -94,7 +93,7 @@ function TodosContainer() {
         createTodo={ createTodo }
         />
       <Todos
-        todos={todos}
+        todos={todos.length ? todos : []}
         onDeleteTodo={deleteTodo} 
         onUpdateTodo={updateTodo} 
         markComplete={markComplete}
