@@ -37,7 +37,7 @@ function TodosContainer() {
     }
     const result = await TodoModel.update(todoId, todoBody)
     let todosCurrent = [...todos]
-    todosCurrent.find(isUpdatedTodo()).body = todoBody.body
+    todosCurrent.find(isUpdatedTodo).body = todoBody.body
     setTodos(todosCurrent)
   }
 
