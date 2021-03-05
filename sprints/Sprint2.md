@@ -7,7 +7,7 @@ Let's revise our `src/containers/TodosContainer.js` and replace the dummy text w
 ```js
 import { useState, useEffect } from 'react'
 
-function TodosContainer() 
+function TodosContainer() {
   return (
     <div className='todosContainer'>
       <h2>This is the todos container</h2>
