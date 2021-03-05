@@ -83,9 +83,9 @@ In the `containers/TodosContainer` React component add the following code:
   
 ```js
 // containers/TodosContainer.js
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-function TodosContainer() 
+function TodosContainer() {
   return (
     <h2>
       I am the TodosContainer page
@@ -108,7 +108,6 @@ Before we add another route, let's create a `Header` component to show up across
 In `src/App.js`:
 
 ```js
-import React from 'react';
 import Header from './components/Header';
 import { Switch, Route } from 'react-router-dom';
 import Home from './components/Home';
@@ -140,7 +139,6 @@ $ touch src/components/Header.js
 In `src/components/Header.js`:
 
 ```js
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
@@ -172,7 +170,6 @@ touch src/config/routes.js
 In your `config/routes.js` file, copy and paste the routes from your `App` component:
 
 ```js
-import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import Home from '../components/Home';
 import TodosContainer from '../containers/TodosContainer';
@@ -188,7 +185,6 @@ export default (
 Then, edit your `App.js` file to no longer have hard-coded routes, and to reference the routes in your `config/routes.js` file instead. Much cleaner!!
 
 ```js
-import React from 'react';
 import Header from './components/Header';
 import routes from './config/routes';
 
