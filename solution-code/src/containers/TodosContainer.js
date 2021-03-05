@@ -16,7 +16,6 @@ function TodosContainer() {
   const fetchData = async() => {
     const res = await TodoModel.all()
     setTodos(res.data)
-    setTodos(res.data)
     setTodoCount( res.data.filter(todo=> todo.completed === false).length)
   }
 
@@ -38,7 +37,7 @@ function TodosContainer() {
     }
     const result = await TodoModel.update(todoId, todoBody)
     let todosCurrent = [...todos]
-    todosCurrent.find(isUpdatedTodo).body = todoBody.body
+    todosCurrent.find(isUpdatedTodo()).body = todoBody.body
     setTodos(todosCurrent)
   }
 
