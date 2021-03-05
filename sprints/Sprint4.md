@@ -117,7 +117,7 @@ import CreateTodoForm from '../components/CreateTodoForm';
       <CreateTodoForm
         createTodo={ createTodo } />
       <Todos
-        todos={this.state.todos} />
+        todos={todos} />
     </div>
   )
 }
